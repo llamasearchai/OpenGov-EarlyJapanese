@@ -263,7 +263,7 @@ The project maintains comprehensive test coverage:
 - **Property-Based Tests**: Hypothesis-driven testing
 - **Benchmarks**: Performance testing
 
-Current test coverage: **59%** with **26 passing tests**
+Current test coverage: **91%** with **105 passing tests**
 
 ## CI/CD Pipeline
 
