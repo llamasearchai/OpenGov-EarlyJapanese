@@ -64,6 +64,7 @@ def _print_table(rows, headers):
         typer.echo("\n".join(lines))
 
 
+@app.command()
 def hiragana(
     row: str = typer.Argument("a_row"),
     fmt: str = typer.Option("json", "--format", "-f", "-F", help="json or table"),
