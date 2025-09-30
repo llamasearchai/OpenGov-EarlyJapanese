@@ -1,0 +1,236 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "opengov-earlyjapanese"
+version = "0.1.0"
+description = "AI-powered comprehensive Japanese language learning platform with business focus"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Nik Jois", email = "nikjois@llamasearch.ai"}
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Education",
+]
+dependencies = [
+    "pydantic>=2.4.0",
+    "pydantic-settings>=2.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "httpx>=0.25.0",
+    "streamlit>=1.28.0",
+    "typer>=0.9.0",
+    "structlog>=23.2.0",
+    "prometheus-client>=0.18.0",
+    "aiofiles>=23.2.1",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-timeout>=2.0.0",
+    "hypothesis>=6.90.0",
+    "faker>=20.0.0",
+
+    # Code Quality
+    "mypy>=1.7.0",
+    "ruff>=0.1.6",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+    "pre-commit>=3.5.0",
+
+    # Security
+    "bandit[toml]>=1.7.0",
+    "safety>=2.3.0",
+
+    # Development
+    "jupyter>=1.0.0",
+    "notebook>=7.0.0",
+    "ipython>=8.0.0",
+
+    # Environment Management
+    "tox>=4.0.0",
+    "uv>=0.1.0",
+    "virtualenv>=20.0.0",
+    "hatch>=1.7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/llamasearchai/OpenGov-EarlyJapanese"
+Documentation = "https://github.com/llamasearchai/OpenGov-EarlyJapanese"
+Repository = "https://github.com/llamasearchai/OpenGov-EarlyJapanese"
+
+[project.scripts]
+nihongo = "opengov_earlyjapanese.cli:app"
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.6",
+    "black>=23.11.0",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov=opengov_earlyjapanese --cov-report=term-missing {args:tests}"
+lint = "ruff check opengov_earlyjapanese tests"
+fmt = "black opengov_earlyjapanese tests"
+fmt-check = "black --check opengov_earlyjapanese tests"
+type = "mypy opengov_earlyjapanese tests"
+serve = "uvicorn opengov_earlyjapanese.api.main:app --reload --host 0.0.0.0 --port 8000"
+streamlit = "streamlit run opengov_earlyjapanese/ui/app.py"
+all = ["fmt", "lint", "type", "test"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501", "B008", "RUF012"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_return_any = true
+
+[[tool.mypy.overrides]]
+module = ["transformers.*", "torch.*", "streamlit.*", "mecab.*", "fugashi.*", "jamdict.*", "romkan.*", "pykakasi.*", "sudachipy.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-ra -q --strict-markers --cov=opengov_earlyjapanese --cov-report=term-missing --cov-report=xml --cov-report=html"
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "e2e: marks tests as end-to-end tests",
+    "property: marks tests as property-based tests",
+    "benchmark: marks tests as performance benchmarks",
+]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["opengov_earlyjapanese"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/migrations/*",
+    "*/conftest.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py39, py310, py311, py312
+skip_missing_interpreters = true
+
+[testenv]
+deps = -e .[dev]
+commands =
+    python -m pytest -q {posargs:tests}
+    python -m mypy opengov_earlyjapanese
+    python -m ruff check opengov_earlyjapanese tests
+    python -m bandit -r opengov_earlyjapanese
+setenv =
+    PYTHONPATH = {toxinidir}
+"""
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.90.0",
+    "faker>=20.0.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.6",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+    "bandit[toml]>=1.7.0",
+    "safety>=2.3.0",
+    "pre-commit>=3.5.0",
+    "tox>=4.0.0",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "docs", "examples"]
+skips = ["B101", "B601"]  # Skip assert checks and shell usage
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.pre-commit]
+repos = [
+    { repo = "https://github.com/pre-commit/pre-commit-hooks", rev = "v4.4.0", hooks = [
+        { id = "trailing-whitespace" },
+        { id = "end-of-file-fixer" },
+        { id = "check-yaml" },
+        { id = "check-added-large-files" },
+        { id = "check-merge-conflict" },
+        { id = "debug-statements" },
+        { id = "check-ast" },
+    ]},
+    { repo = "https://github.com/psf/black", rev = "23.11.0", hooks = [
+        { id = "black", language_version = "python3" },
+    ]},
+    { repo = "https://github.com/pycqa/isort", rev = "5.12.0", hooks = [
+        { id = "isort" },
+    ]},
+    { repo = "https://github.com/pycqa/flake8", rev = "6.0.0", hooks = [
+        { id = "flake8" },
+    ]},
+    { repo = "https://github.com/pre-commit/mirrors-mypy", rev = "1.7.0", hooks = [
+        { id = "mypy", additional_dependencies = ["types-all"] },
+    ]},
+    { repo = "https://github.com/PyCQA/bandit", rev = "1.7.0", hooks = [
+        { id = "bandit", args = ["-c", "pyproject.toml"] },
+    ]},
+]

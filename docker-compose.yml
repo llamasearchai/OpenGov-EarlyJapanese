@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: llamasearchai/opengov-earlyjapanese:latest
+    container_name: opengov-earlyjapanese-api
+    ports:
+      - "8000:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data:ro
+      - ./media:/app/media
+      - ./models:/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: llamasearchai/opengov-earlyjapanese:latest
+    container_name: opengov-earlyjapanese-ui
+    ports:
+      - "8501:8501"
+    command: ["streamlit", "run", "opengov_earlyjapanese/ui/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    environment:
+      - API_HOST=api
+      - API_PORT=8000
+    depends_on:
+      - api
+    volumes:
+      - ./data:/app/data:ro
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: opengov-earlyjapanese-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: opengov-earlyjapanese-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=opengov_earlyjapanese
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: opengov-earlyjapanese-network
+
