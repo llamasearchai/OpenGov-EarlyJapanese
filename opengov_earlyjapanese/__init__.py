@@ -1,6 +1,6 @@
 """OpenGov-EarlyJapanese - Comprehensive AI-powered Japanese language learning platform."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Nik Jois"
 __email__ = "nikjois@llamasearch.ai"
 

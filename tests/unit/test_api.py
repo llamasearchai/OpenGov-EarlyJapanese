@@ -21,7 +21,7 @@ class TestAPIEndpoints:
         data = response.json()
         assert "name" in data
         assert "version" in data
-        assert data["version"] == "0.1.0"
+        assert data["version"] == "0.2.0"
 
     def test_health_endpoint(self, client):
         """Test the health check endpoint."""
@@ -71,4 +71,5 @@ class TestAPIEndpoints:
         assert "openapi" in data
         assert "info" in data
         assert data["info"]["title"] == "OpenGov-EarlyJapanese API"
+        assert data["info"]["version"] == "0.2.0"
 

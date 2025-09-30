@@ -12,7 +12,7 @@ class TestConfig:
         settings = Settings()
         assert settings.api_host == "0.0.0.0"
         assert settings.api_port == 8000
-        assert settings.api_version == "0.1.0"
+        assert settings.api_version == "0.2.0"
 
     def test_get_settings_cached(self):
         """Test that get_settings returns cached instance."""

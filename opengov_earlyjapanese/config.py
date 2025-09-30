@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     api_port: int = Field(default=8000)
     api_prefix: str = Field(default="/api/v1")
     api_title: str = Field(default="OpenGov-EarlyJapanese API")
-    api_version: str = Field(default="0.1.0")
+    api_version: str = Field(default="0.2.0")
 
     # Security
     secret_key: SecretStr = Field(default_factory=lambda: SecretStr(secrets.token_urlsafe(32)))
