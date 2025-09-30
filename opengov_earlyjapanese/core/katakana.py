@@ -1,8 +1,16 @@
 """Katakana teaching module (simplified)."""
 
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel
 
 from opengov_earlyjapanese.core.models import Character
+
+
+class KatakanaLesson(BaseModel):
+    row: str
+    characters: List[str]
+    mnemonics: Dict[str, str]
 
 
 class KatakanaTeacher:
@@ -95,3 +103,14 @@ class KatakanaTeacher:
             "ra_row": ["ラ", "リ", "ル", "レ", "ロ"],
             "wa_row": ["ワ", "ヲ", "ン"],
         }
+
+    def get_lesson(self, row: str) -> KatakanaLesson:
+        if row not in self.rows:
+            raise ValueError(f"Unknown row: {row}")
+        chars = self.rows[row]
+        mnemonics = {c: self.characters[c].mnemonic or "" for c in chars}
+        return KatakanaLesson(row=row, characters=chars, mnemonics=mnemonics)
+
+    def get_mnemonic(self, character: str) -> Optional[str]:
+        char = self.characters.get(character)
+        return char.mnemonic if char else None
